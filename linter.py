@@ -154,6 +154,15 @@ class ESLint(NodeLinter):
                     self.notify_failure()
                     continue
 
+                if match['endLine'] > match['line']:
+                    source = content[0]['source']
+                    line = source.split('\n')[match['line']-1][match['column']-1:]
+                    token = re.findall(r'^(\W\w*|\w+|\W)', line)
+                    if token:
+                        match.pop('endLine', None)
+                        match['endColumn'] = match['column'] + len(token[0])
+                        logger.info('token: "{}"'.format(token))
+
                 yield LintMatch(
                     match=match,
                     filename=filename,
